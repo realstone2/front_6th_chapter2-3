@@ -61,6 +61,7 @@ Input.displayName = "Input"
 // 카드 컴포넌트
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => (
@@ -202,10 +203,13 @@ DialogContent.displayName = DialogPrimitive.Content.displayName
 
 interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string
+  children?: React.ReactNode
 }
 
-export const DialogHeader = ({ className, ...props }: DialogHeaderProps) => (
-  <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props} />
+export const DialogHeader = ({ className, children, ...props }: DialogHeaderProps) => (
+  <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props}>
+    {children}
+  </div>
 )
 DialogHeader.displayName = "DialogHeader"
 
@@ -227,6 +231,7 @@ DialogTitle.displayName = DialogPrimitive.Title.displayName
 // 테이블 컴포넌트
 interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const Table = forwardRef<HTMLTableElement, TableProps>(({ className, ...props }, ref) => (
@@ -238,6 +243,7 @@ Table.displayName = "Table"
 
 interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(({ className, ...props }, ref) => (
@@ -247,6 +253,7 @@ TableHeader.displayName = "TableHeader"
 
 interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(({ className, ...props }, ref) => (
@@ -256,6 +263,7 @@ TableBody.displayName = "TableBody"
 
 interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(({ className, ...props }, ref) => (
@@ -269,6 +277,7 @@ TableRow.displayName = "TableRow"
 
 interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(({ className, ...props }, ref) => (
@@ -282,6 +291,7 @@ TableHead.displayName = "TableHead"
 
 interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
   className?: string
+  children?: React.ReactNode
 }
 
 export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(({ className, ...props }, ref) => (
