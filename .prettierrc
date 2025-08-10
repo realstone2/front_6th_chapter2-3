@@ -1,15 +1,9 @@
 {
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
-  "semi": true,
+  "semi": false,
   "printWidth": 120,
   "tabWidth": 2,
-  "useTabs": false,
-  "proseWrap": "preserve",
-  "singleQuote": true,
+  "singleQuote": false,
   "quoteProps": "consistent",
   "trailingComma": "all",
-  "singleAttributePerLine": false,
-
-  "importOrder": [".vue$", ".tsx$", "."],
-  "importOrderSeparation": true
+  "singleAttributePerLine": false
 }
