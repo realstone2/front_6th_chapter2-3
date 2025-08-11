@@ -7,16 +7,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -24,7 +15,16 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../shared/ui/index"
 
 // API 응답 타입 정의
 interface Post {
