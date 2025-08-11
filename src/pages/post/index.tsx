@@ -26,68 +26,10 @@ import {
   SelectValue,
 } from "../../shared/ui/index"
 
-// API 응답 타입 정의
-interface Post {
-  id: number
-  title: string
-  body: string
-  userId: number
-  tags?: string[]
-  reactions?: {
-    likes: number
-    dislikes: number
-  }
-  author?: User
-}
-
-interface User {
-  id: number
-  username: string
-  image: string
-  firstName: string
-  lastName: string
-  age: number
-  email: string
-  phone: string
-  address: {
-    address: string
-    city: string
-    state: string
-  }
-  company: {
-    name: string
-    title: string
-  }
-}
-
-interface Comment {
-  id: number
-  body: string
-  postId: number
-  userId: number
-  likes: number
-  user: {
-    username: string
-  }
-}
-
-interface Tag {
-  url: string
-  slug: string
-}
-
-interface PostsResponse {
-  posts: Post[]
-  total: number
-}
-
-interface UsersResponse {
-  users: User[]
-}
-
-interface CommentsResponse {
-  comments: Comment[]
-}
+import { Post, PostsResponse } from "../../entities/post"
+import { User, UsersResponse } from "../../entities/user"
+import { Comment, CommentsResponse } from "../../entities/comment"
+import { Tag } from "../../entities/tag"
 
 const PostsManager = () => {
   const navigate = useNavigate()
