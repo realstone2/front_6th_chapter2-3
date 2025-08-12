@@ -1,4 +1,5 @@
 import axios, { AxiosInstance as AxiosInstanceType, AxiosRequestConfig, AxiosResponse } from "axios"
+import qs from "qs"
 
 class AxiosInstance {
   private instance: AxiosInstanceType
@@ -9,6 +10,10 @@ class AxiosInstance {
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
+      },
+
+      paramsSerializer: (params) => {
+        return qs.stringify(params, { arrayFormat: "comma" })
       },
     })
   }
