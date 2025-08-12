@@ -12,3 +12,4 @@ export interface Comment {
 export interface CommentsResponse {
   comments: Comment[]
 }
+
