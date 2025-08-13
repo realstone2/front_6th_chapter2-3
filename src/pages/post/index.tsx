@@ -114,10 +114,12 @@ const PostsManager = () => {
   const fetchTags = async () => {
     try {
       const response = await fetch("/api/posts/tags")
-      const data: Tag[] = await response.json()
-      setTags(data)
+      const data = await response.json()
+      // API 응답이 배열인지 확인하고 안전하게 설정
+      setTags(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("태그 가져오기 오류:", error)
+      setTags([]) // 에러 시 빈 배열로 설정
     }
   }
 
@@ -529,11 +531,12 @@ const PostsManager = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
+                {Array.isArray(tags) &&
+                  tags.map((tag) => (
+                    <SelectItem key={tag.url} value={tag.slug}>
+                      {tag.slug}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
