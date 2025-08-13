@@ -2,14 +2,16 @@ import { User } from "../../user/model/types"
 
 // Query 타입들
 export interface GetPostQuery {
-  limit: number
-  skip: number
-  q: string
-  tag: string
+  limit?: number
+  skip?: number
+  q?: string
+  tag?: string
+  sortBy?: "none" | "id" | "title" | "reactions"
+  order?: "asc" | "desc"
 }
 
 export interface SearchPostQuery {
-  q: string
+  q?: string
 }
 
 export interface CreatePostRequest {
