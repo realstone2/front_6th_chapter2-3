@@ -4,6 +4,8 @@ import { User } from "../../user/model/types"
 export interface GetPostQuery {
   limit: number
   skip: number
+  q: string
+  tag: string
 }
 
 export interface SearchPostQuery {

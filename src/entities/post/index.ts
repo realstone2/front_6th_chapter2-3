@@ -19,6 +19,4 @@ export {
   postQueryKeys,
   // Queries
   useGetPosts,
-  useGetSearchPosts,
-  useGetPostsByTag,
 } from "./api"
