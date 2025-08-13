@@ -1,5 +1,5 @@
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
   Button,
   Card,
@@ -26,8 +26,8 @@ import {
 } from "../../shared/ui/index"
 
 import { Comment, CommentsResponse } from "../../entities/comment"
-import { Post } from "../../entities/post"
-import { Tag } from "../../entities/tag"
+import { GetPostQuery, Post } from "../../entities/post"
+import { useGetTags } from "../../entities/tag/api"
 import { User } from "../../entities/user"
 import { useGetPosts } from "../../widgets/post-list/api/hooks/use-get-post-list"
 import { usePostListFilterSearchParams } from "../../widgets/post-list/model/hooks/use-post-list-filter-search-params"
@@ -43,7 +43,8 @@ const PostsManager = () => {
   const sortOrder = queryParams.order ?? "asc"
   const selectedTag = queryParams.tag ?? ""
 
-  const { posts, isLoading, isError } = useGetPosts(queryParams)
+  const { posts, isLoading } = useGetPosts(queryParams)
+
   // 상태 관리
   const [, setPosts] = useState<Post[]>([])
   const [total, setTotal] = useState<number>(0)
@@ -55,8 +56,8 @@ const PostsManager = () => {
     body: "",
     userId: 1,
   })
-  const [loading, setLoading] = useState<boolean>(false)
-  const [tags, setTags] = useState<Tag[]>([])
+
+  const { data: tags } = useGetTags()
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [newComment, setNewComment] = useState<{ body: string; postId: number | null; userId: number }>({
@@ -69,19 +70,6 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState<boolean>(false)
   const [showUserModal, setShowUserModal] = useState<boolean>(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      // API 응답이 배열인지 확인하고 안전하게 설정
-      setTags(Array.isArray(data) ? data : [])
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-      setTags([]) // 에러 시 빈 배열로 설정
-    }
-  }
 
   // 게시물 추가
   const addPost = async () => {
@@ -239,102 +227,17 @@ const PostsManager = () => {
     }
   }
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
-
-  // 하이라이트 함수 추가
-  const highlightText = (text: string | undefined, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
-
   // 게시물 테이블 렌더링
-  const renderPostTable = () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className="w-[150px]">작성자</TableHead>
-          <TableHead className="w-[150px]">반응</TableHead>
-          <TableHead className="w-[150px]">작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? "text-white bg-blue-500 hover:bg-blue-600"
-                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
-                      }`}
-                      onClick={() => {
-                        setPostListFilterSearchParams({ tag })
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author!)}>
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="w-4 h-4" />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPost(post)
-                    setShowEditDialog(true)
-                  }}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+  const renderPostTable = PostTable(
+    posts,
+    searchQuery,
+    selectedTag,
+    setPostListFilterSearchParams,
+    openUserModal,
+    openPostDetail,
+    setSelectedPost,
+    setShowEditDialog,
+    deletePost,
   )
 
   // 댓글 렌더링
@@ -454,7 +357,7 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {isLoading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
 
           {/* 페이지네이션 */}
           <div className="flex justify-between items-center">
@@ -630,3 +533,116 @@ const PostsManager = () => {
 }
 
 export default PostsManager
+
+export function PostTable(
+  posts: {
+    author: User | undefined
+    id: number
+    title: string
+    body: string
+    userId: number
+    tags?: string[]
+    reactions?: { likes: number; dislikes: number }
+  }[],
+  searchQuery: string,
+  selectedTag: string,
+  setPostListFilterSearchParams: (value: Partial<GetPostQuery>) => void,
+  openUserModal: (user: User) => Promise<void>,
+  openPostDetail: (post: Post) => void,
+  setSelectedPost,
+  setShowEditDialog,
+  deletePost: (id: number) => Promise<void>,
+) {
+  return () => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[50px]">ID</TableHead>
+          <TableHead>제목</TableHead>
+          <TableHead className="w-[150px]">작성자</TableHead>
+          <TableHead className="w-[150px]">반응</TableHead>
+          <TableHead className="w-[150px]">작업</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {posts.map((post) => (
+          <TableRow key={post.id}>
+            <TableCell>{post.id}</TableCell>
+            <TableCell>
+              <div className="space-y-1">
+                <div>{highlightText(post.title, searchQuery)}</div>
+
+                <div className="flex flex-wrap gap-1">
+                  {post.tags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
+                        selectedTag === tag
+                          ? "text-white bg-blue-500 hover:bg-blue-600"
+                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
+                      }`}
+                      onClick={() => {
+                        setPostListFilterSearchParams({ tag })
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author!)}>
+                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
+                <span>{post.author?.username}</span>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <ThumbsUp className="w-4 h-4" />
+                <span>{post.reactions?.likes || 0}</span>
+                <ThumbsDown className="w-4 h-4" />
+                <span>{post.reactions?.dislikes || 0}</span>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
+                  <MessageSquare className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPost(post)
+                    setShowEditDialog(true)
+                  }}
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+// 하이라이트 함수 추가
+const highlightText = (text: string | undefined, highlight: string) => {
+  if (!text) return null
+  if (!highlight.trim()) {
+    return <span>{text}</span>
+  }
+  const regex = new RegExp(`(${highlight})`, "gi")
+  const parts = text.split(regex)
+  return (
+    <span>
+      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
+    </span>
+  )
+}
