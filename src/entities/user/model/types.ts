@@ -22,3 +22,7 @@ export interface UsersResponse {
   users: User[]
 }
 
+export interface GetUserQuery {
+  limit: number
+  select: Array<"username" | "image">
+}
