@@ -1,13 +1,21 @@
-import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
 import {
   Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -15,21 +23,12 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "../../shared/ui/index"
 
-import { Post, PostsResponse } from "../../entities/post"
-import { User, UsersResponse } from "../../entities/user"
 import { Comment, CommentsResponse } from "../../entities/comment"
+import { Post, PostsResponse } from "../../entities/post"
 import { Tag } from "../../entities/tag"
+import { User, UsersResponse } from "../../entities/user"
 import { usePostListFilterSearchParams } from "../../widgets/post-list/model/hooks/use-post-list-filter-search-params"
 
 const PostsManager = () => {

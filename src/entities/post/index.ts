@@ -17,6 +17,4 @@ export {
 
   // Query Keys
   postQueryKeys,
-  // Queries
-  useGetPosts,
 } from "./api"

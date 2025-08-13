@@ -9,6 +9,7 @@ export const userQueryKeys = {
     queryOptions({
       queryKey: [...userQueryKeys.lists(), query],
       queryFn: () => getUser(query),
+      select: (data) => data.users,
     }),
   detail: (id: number) =>
     queryOptions({
