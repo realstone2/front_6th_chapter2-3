@@ -14,17 +14,11 @@ export {
   getPosts,
   searchPosts,
   getPostsByTag,
-  createPost,
-  updatePost,
-  deletePost,
+
   // Query Keys
   postQueryKeys,
   // Queries
-  usePosts,
-  useSearchPosts,
-  usePostsByTag,
-  // Mutations
-  useCreatePost,
-  useUpdatePost,
-  useDeletePost,
+  useGetPosts,
+  useGetSearchPosts,
+  useGetPostsByTag,
 } from "./api"

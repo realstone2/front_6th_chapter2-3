@@ -22,18 +22,3 @@ export const searchPosts = (query: SearchPostQuery) => {
 export const getPostsByTag = (tag: string) => {
   return axiosInstance.get<PostsResponse>(`/posts/tag/${tag}`)
 }
-
-// 게시물 생성
-export const createPost = (data: CreatePostRequest) => {
-  return axiosInstance.post<Post>(`/posts/add`, data)
-}
-
-// 게시물 수정
-export const updatePost = (id: number, data: UpdatePostRequest) => {
-  return axiosInstance.put<Post>(`/posts/${id}`, data)
-}
-
-// 게시물 삭제
-export const deletePost = (id: number) => {
-  return axiosInstance.delete<void>(`/posts/${id}`)
-}
