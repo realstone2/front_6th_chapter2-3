@@ -26,9 +26,10 @@ import {
 } from "../../shared/ui/index"
 
 import { Comment, CommentsResponse } from "../../entities/comment"
-import { Post, PostsResponse } from "../../entities/post"
+import { Post } from "../../entities/post"
 import { Tag } from "../../entities/tag"
-import { User, UsersResponse } from "../../entities/user"
+import { User } from "../../entities/user"
+import { useGetPosts } from "../../widgets/post-list/api/hooks/use-get-post-list"
 import { usePostListFilterSearchParams } from "../../widgets/post-list/model/hooks/use-post-list-filter-search-params"
 
 const PostsManager = () => {
@@ -42,8 +43,9 @@ const PostsManager = () => {
   const sortOrder = queryParams.order ?? "asc"
   const selectedTag = queryParams.tag ?? ""
 
+  const { posts, isLoading, isError } = useGetPosts(queryParams)
   // 상태 관리
-  const [posts, setPosts] = useState<Post[]>([])
+  const [, setPosts] = useState<Post[]>([])
   const [total, setTotal] = useState<number>(0)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [showAddDialog, setShowAddDialog] = useState<boolean>(false)
@@ -68,36 +70,6 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState<boolean>(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true)
-    let postsData: PostsResponse
-    let usersData: UsersResponse
-
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data: PostsResponse) => {
-        postsData = data
-        return fetch("/api/users?limit=0&select=username,image")
-      })
-      .then((response) => response.json())
-      .then((users: UsersResponse) => {
-        usersData = users
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.users.find((user) => user.id === post.userId),
-        }))
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
-
   // 태그 가져오기
   const fetchTags = async () => {
     try {
@@ -109,52 +81,6 @@ const PostsManager = () => {
       console.error("태그 가져오기 오류:", error)
       setTags([]) // 에러 시 빈 배열로 설정
     }
-  }
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data: PostsResponse = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    }
-    setLoading(false)
-  }
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === "all") {
-      fetchPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData: PostsResponse = await postsResponse.json()
-      const usersData: UsersResponse = await usersResponse.json()
-
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }))
-
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
-    }
-    setLoading(false)
   }
 
   // 게시물 추가
@@ -316,14 +242,6 @@ const PostsManager = () => {
   useEffect(() => {
     fetchTags()
   }, [])
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
-    }
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
 
   // 하이라이트 함수 추가
   const highlightText = (text: string | undefined, highlight: string) => {
@@ -490,7 +408,7 @@ const PostsManager = () => {
                   className="pl-8"
                   value={searchQuery}
                   onChange={(e) => setPostListFilterSearchParams({ q: e.target.value })}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+                  //TODO: 검색 debounce 및 내부 state 추가
                 />
               </div>
             </div>
@@ -498,7 +416,6 @@ const PostsManager = () => {
               value={selectedTag}
               onValueChange={(value) => {
                 setPostListFilterSearchParams({ tag: value })
-                fetchPostsByTag(value)
               }}
             >
               <SelectTrigger className="w-[180px]">
