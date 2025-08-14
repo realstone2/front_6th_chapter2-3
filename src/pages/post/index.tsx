@@ -1,5 +1,5 @@
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { useState } from "react"
+import React, { useState } from "react"
 import {
   Button,
   Card,
@@ -7,9 +7,6 @@ import {
   CardHeader,
   CardTitle,
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   Input,
   Select,
   SelectContent,
@@ -24,13 +21,21 @@ import {
   TableRow,
   Textarea,
 } from "../../shared/ui/index"
+import { CommentsSection } from "./ui"
 
 import { Comment, CommentsResponse } from "../../entities/comment"
-import { GetPostQuery, Post } from "../../entities/post"
+import { GetPostQuery, Post, useGetPostDetail } from "../../entities/post"
 import { useGetTags } from "../../entities/tag/api"
 import { User } from "../../entities/user"
-import { useGetPosts } from "../../widgets/post-list/api/hooks/use-get-post-list"
-import { usePostListFilterSearchParams } from "../../widgets/post-list/model/hooks/use-post-list-filter-search-params"
+import { useGetPosts } from "../../widgets/post-dashboard/api/hooks/use-get-post-list"
+import { usePostListFilterSearchParams } from "../../widgets/post-dashboard/model/hooks/use-post-list-filter-search-params"
+import { useCreatePostMutation } from "../../features/add-post/api/hooks/use-create-post-mutation"
+import { useUpdatePostMutation } from "../../features/edit-post/api/hooks/use-update-post-mutation"
+import { useDeletePostMutation } from "../../features/post/api/hooks/use-delete-post-mutation"
+import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
+import { PostDetailDialog } from "../../widgets/post-dashboard/ui/PostDetailDialog"
+import { highlightText } from "../../shared/lib/highlight-text"
+import { PostTable } from "../../widgets/post-dashboard/ui/PostList"
 
 const PostsManager = () => {
   const { postListFilterSearchParams, setPostListFilterSearchParams } = usePostListFilterSearchParams()
@@ -43,11 +48,16 @@ const PostsManager = () => {
   const sortOrder = queryParams.order ?? "asc"
   const selectedTag = queryParams.tag ?? ""
 
-  const { posts, isLoading } = useGetPosts(queryParams)
+  const { data: postList, isLoading } = useGetPosts(queryParams)
+  const posts = postList?.postIds || []
+  const total = postList?.total || 0
+
+  // Mutation hooks
+  const createPostMutation = useCreatePostMutation()
+  const updatePostMutation = useUpdatePostMutation()
+  const deletePostMutation = useDeletePostMutation()
 
   // 상태 관리
-  const [, setPosts] = useState<Post[]>([])
-  const [total, setTotal] = useState<number>(0)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [showAddDialog, setShowAddDialog] = useState<boolean>(false)
   const [showEditDialog, setShowEditDialog] = useState<boolean>(false)
@@ -74,13 +84,7 @@ const PostsManager = () => {
   // 게시물 추가
   const addPost = async () => {
     try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data: Post = await response.json()
-      setPosts([data, ...posts])
+      await createPostMutation.mutateAsync(newPost)
       setShowAddDialog(false)
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
@@ -92,13 +96,10 @@ const PostsManager = () => {
   const updatePost = async () => {
     if (!selectedPost) return
     try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
+      await updatePostMutation.mutateAsync({
+        id: selectedPost.id,
+        data: { title: selectedPost.title, body: selectedPost.body },
       })
-      const data: Post = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -108,10 +109,7 @@ const PostsManager = () => {
   // 게시물 삭제
   const deletePost = async (id: number) => {
     try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      setPosts(posts.filter((post) => post.id !== id))
+      await deletePostMutation.mutateAsync(id)
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
@@ -208,13 +206,6 @@ const PostsManager = () => {
     }
   }
 
-  // 게시물 상세 보기
-  const openPostDetail = (post: Post) => {
-    setSelectedPost(post)
-    fetchComments(post.id)
-    setShowPostDetailDialog(true)
-  }
-
   // 사용자 모달 열기
   const openUserModal = async (user: User) => {
     try {
@@ -227,66 +218,16 @@ const PostsManager = () => {
     }
   }
 
-  // 게시물 테이블 렌더링
-  const renderPostTable = PostTable(
-    posts,
-    searchQuery,
-    selectedTag,
-    setPostListFilterSearchParams,
-    openUserModal,
-    openPostDetail,
-    setSelectedPost,
-    setShowEditDialog,
-    deletePost,
-  )
+  // 댓글 관련 핸들러 함수들
+  const handleAddComment = (postId: number) => {
+    setNewComment((prev) => ({ ...prev, postId }))
+    setShowAddCommentDialog(true)
+  }
 
-  // 댓글 렌더링
-  const renderComments = (postId: number) => (
-    <div className="mt-2">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">댓글</h3>
-        <Button
-          size="sm"
-          onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
-            setShowAddCommentDialog(true)
-          }}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          댓글 추가
-        </Button>
-      </div>
-      <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedComment(comment)
-                  setShowEditCommentDialog(true)
-                }}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+  const handleEditComment = (comment: Comment) => {
+    setSelectedComment(comment)
+    setShowEditCommentDialog(true)
+  }
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
@@ -334,7 +275,12 @@ const PostsManager = () => {
                   ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={(value) => setPostListFilterSearchParams({ sortBy: value })}>
+            <Select
+              value={sortBy}
+              onValueChange={(value) =>
+                setPostListFilterSearchParams({ sortBy: value as "none" | "id" | "title" | "reactions" })
+              }
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -345,7 +291,10 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={sortOrder} onValueChange={(value) => setPostListFilterSearchParams({ order: value })}>
+            <Select
+              value={sortOrder}
+              onValueChange={(value) => setPostListFilterSearchParams({ order: value as "asc" | "desc" })}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
@@ -357,7 +306,7 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {isLoading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          <PostTable />
 
           {/* 페이지네이션 */}
           <div className="flex justify-between items-center">
@@ -396,41 +345,14 @@ const PostsManager = () => {
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 게시물 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={30}
-              placeholder="내용"
-              value={newPost.body}
-              onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="사용자 ID"
-              value={newPost.userId}
-              onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-            />
-            <Button onClick={addPost}>게시물 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddPostDialog isOpen={showAddDialog} setIsOpen={setShowAddDialog} />
 
       {/* 게시물 수정 대화상자 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>게시물 수정</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Input
               placeholder="제목"
@@ -445,15 +367,15 @@ const PostsManager = () => {
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 댓글 추가 대화상자 */}
       <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>새 댓글 추가</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
@@ -462,15 +384,15 @@ const PostsManager = () => {
             />
             <Button onClick={addComment}>댓글 추가</Button>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 댓글 수정 대화상자 */}
       <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>댓글 수정</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <Textarea
               placeholder="댓글 내용"
@@ -479,28 +401,15 @@ const PostsManager = () => {
             />
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {selectedPost && renderComments(selectedPost.id)}
-          </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
 
       {/* 사용자 모달 */}
       <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>사용자 정보</Dialog.Title>
+          </Dialog.Header>
           <div className="space-y-4">
             <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
             <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
@@ -526,123 +435,10 @@ const PostsManager = () => {
               </p>
             </div>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
     </Card>
   )
 }
 
 export default PostsManager
-
-export function PostTable(
-  posts: {
-    author: User | undefined
-    id: number
-    title: string
-    body: string
-    userId: number
-    tags?: string[]
-    reactions?: { likes: number; dislikes: number }
-  }[],
-  searchQuery: string,
-  selectedTag: string,
-  setPostListFilterSearchParams: (value: Partial<GetPostQuery>) => void,
-  openUserModal: (user: User) => Promise<void>,
-  openPostDetail: (post: Post) => void,
-  setSelectedPost,
-  setShowEditDialog,
-  deletePost: (id: number) => Promise<void>,
-) {
-  return () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className="w-[150px]">작성자</TableHead>
-          <TableHead className="w-[150px]">반응</TableHead>
-          <TableHead className="w-[150px]">작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? "text-white bg-blue-500 hover:bg-blue-600"
-                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
-                      }`}
-                      onClick={() => {
-                        setPostListFilterSearchParams({ tag })
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author!)}>
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="w-4 h-4" />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPost(post)
-                    setShowEditDialog(true)
-                  }}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  )
-}
-
-// 하이라이트 함수 추가
-const highlightText = (text: string | undefined, highlight: string) => {
-  if (!text) return null
-  if (!highlight.trim()) {
-    return <span>{text}</span>
-  }
-  const regex = new RegExp(`(${highlight})`, "gi")
-  const parts = text.split(regex)
-  return (
-    <span>
-      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-    </span>
-  )
-}
