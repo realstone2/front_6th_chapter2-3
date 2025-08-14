@@ -20,7 +20,6 @@ import { Comment, CommentsResponse } from "../../entities/comment"
 import { Post } from "../../entities/post"
 import { useGetTags } from "../../entities/tag/api"
 import { User } from "../../entities/user"
-import { AddCommentDialog } from "../../features/add-comment"
 import { useCreatePostMutation } from "../../features/add-post/api/hooks/use-create-post-mutation"
 import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
 import { useUpdatePostMutation } from "../../features/edit-post/api/hooks/use-update-post-mutation"
@@ -112,26 +111,6 @@ const PostsManager = () => {
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  // 댓글 업데이트
-  const updateComment = async () => {
-    if (!selectedComment) return
-    try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data: Comment = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      }))
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
     }
   }
 
@@ -333,23 +312,6 @@ const PostsManager = () => {
               onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })}
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </Dialog.Content>
-      </Dialog>
-
-      {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>댓글 수정</Dialog.Title>
-          </Dialog.Header>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => selectedComment && setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
         </Dialog.Content>
       </Dialog>
