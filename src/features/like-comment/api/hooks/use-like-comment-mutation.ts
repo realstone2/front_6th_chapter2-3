@@ -14,7 +14,7 @@ export const useLikeCommentMutation = () => {
       if (prevData) {
         queryClient.setQueryData(commentQueryKeys.list(response.postId).queryKey, {
           comments: prevData.comments.map((comment) =>
-            comment.id === response.id ? { ...response, likes: comment.likes + 1 } : comment,
+            comment.id === response.id ? { ...comment, likes: comment.likes + 1 } : comment,
           ),
         })
       }
