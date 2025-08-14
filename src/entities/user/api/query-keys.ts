@@ -10,6 +10,9 @@ export const userQueryKeys = {
       queryKey: [...userQueryKeys.lists(), query],
       queryFn: () => getUser(query),
       select: (data) => data.users,
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 10,
+      refetchOnMount: false,
     }),
   detail: (id: number) =>
     queryOptions({

@@ -10,7 +10,7 @@ import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react
 
 import { EditPostDialog } from "../../../features/edit-post/ui/EditPostDialog"
 import { UserDetailDialog } from "../../../entities/user/ui"
-import { useGetUserDetail } from "../../../entities/user"
+import { useGetUserDetail, useGetUsers } from "../../../entities/user"
 import { DeletePostButton } from "../../../features/delete-post/ui/DeletePostButton"
 
 export function PostTable() {
@@ -48,14 +48,14 @@ export function PostTable() {
 const ProductTableRow = React.memo(function ProductTableRow({ postId }: { postId: number }) {
   const { data: postDetail } = useGetPostDetail(postId)
 
-  const { data: user } = useGetUserDetail(postDetail?.userId ?? 0)
+  const { data: users } = useGetUsers({ limit: 0, select: ["username", "image"] })
 
   const post = React.useMemo(() => {
     return {
       ...postDetail,
-      author: user,
+      author: users?.find((user) => user.id === postDetail?.userId),
     }
-  }, [postDetail, user])
+  }, [postDetail, users])
 
   const { postListFilterSearchParams, setPostListFilterSearchParams } = usePostListFilterSearchParams()
 
