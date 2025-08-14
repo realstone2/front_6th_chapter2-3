@@ -1,5 +1,5 @@
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import React, { useState } from "react"
+import { Plus, Search } from "lucide-react"
+import { useState } from "react"
 import {
   Button,
   Card,
@@ -13,28 +13,20 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Textarea,
 } from "../../shared/ui/index"
-import { CommentsSection } from "./ui"
 
 import { Comment, CommentsResponse } from "../../entities/comment"
-import { GetPostQuery, Post, useGetPostDetail } from "../../entities/post"
+import { Post } from "../../entities/post"
 import { useGetTags } from "../../entities/tag/api"
 import { User } from "../../entities/user"
-import { useGetPosts } from "../../widgets/post-dashboard/api/hooks/use-get-post-list"
-import { usePostListFilterSearchParams } from "../../widgets/post-dashboard/model/hooks/use-post-list-filter-search-params"
+import { AddCommentDialog } from "../../features/add-comment"
 import { useCreatePostMutation } from "../../features/add-post/api/hooks/use-create-post-mutation"
+import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
 import { useUpdatePostMutation } from "../../features/edit-post/api/hooks/use-update-post-mutation"
 import { useDeletePostMutation } from "../../features/post/api/hooks/use-delete-post-mutation"
-import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
-import { PostDetailDialog } from "../../widgets/post-dashboard/ui/PostDetailDialog"
-import { highlightText } from "../../shared/lib/highlight-text"
+import { useGetPosts } from "../../widgets/post-dashboard/api/hooks/use-get-post-list"
+import { usePostListFilterSearchParams } from "../../widgets/post-dashboard/model/hooks/use-post-list-filter-search-params"
 import { PostTable } from "../../widgets/post-dashboard/ui/PostList"
 
 const PostsManager = () => {
@@ -70,12 +62,8 @@ const PostsManager = () => {
   const { data: tags } = useGetTags()
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const [newComment, setNewComment] = useState<{ body: string; postId: number | null; userId: number }>({
-    body: "",
-    postId: null,
-    userId: 1,
-  })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState<boolean>(false)
+  const [selectedPostIdForComment, setSelectedPostIdForComment] = useState<number | null>(null)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState<boolean>(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState<boolean>(false)
   const [showUserModal, setShowUserModal] = useState<boolean>(false)
@@ -124,27 +112,6 @@ const PostsManager = () => {
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  // 댓글 추가
-  const addComment = async () => {
-    if (!newComment.postId) return
-    try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data: Comment = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
     }
   }
 
@@ -220,7 +187,7 @@ const PostsManager = () => {
 
   // 댓글 관련 핸들러 함수들
   const handleAddComment = (postId: number) => {
-    setNewComment((prev) => ({ ...prev, postId }))
+    setSelectedPostIdForComment(postId)
     setShowAddCommentDialog(true)
   }
 
@@ -366,23 +333,6 @@ const PostsManager = () => {
               onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })}
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </Dialog.Content>
-      </Dialog>
-
-      {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>새 댓글 추가</Dialog.Title>
-          </Dialog.Header>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
           </div>
         </Dialog.Content>
       </Dialog>
