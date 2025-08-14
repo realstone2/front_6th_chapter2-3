@@ -17,8 +17,8 @@ export const useGetPosts = (query: GetPostQuery) => {
     queryFn: async () => {
       let postsResponse
 
-      if (query.tag) {
-        postsResponse = await getPostsByTag(query.tag)
+      if (!!query.tag && query.tag !== "all") {
+        postsResponse = await getPostsByTag(query.tag, query)
       } else if (query.q) {
         postsResponse = await searchPosts(query)
       } else {

@@ -1,15 +1,9 @@
 import { Plus } from "lucide-react"
-import React, { useState } from "react"
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../shared/ui/index"
+import { useState } from "react"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../../shared/ui/index"
 
 import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
-import { PostTable, PostFilter, PostPagination } from "../../widgets/post-dashboard/ui"
+import { PostFilter, PostPagination, PostTable } from "../../widgets/post-dashboard/ui"
 
 const PostsManager = () => {
   // 상태 관리

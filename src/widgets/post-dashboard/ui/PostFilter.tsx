@@ -66,6 +66,7 @@ export const PostFilter = React.memo(function PostFilter() {
         </SelectContent>
       </Select>
       <Select
+        disabled={sortBy === "none"}
         value={sortOrder}
         onValueChange={(value) => setPostListFilterSearchParams({ order: value as "asc" | "desc" })}
       >

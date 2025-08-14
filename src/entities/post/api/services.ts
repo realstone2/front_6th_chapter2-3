@@ -7,11 +7,13 @@ export const getPosts = (query: GetPostQuery) => {
 }
 
 // 게시물 검색
-export const searchPosts = (query: SearchPostQuery) => {
+export const searchPosts = (query: SearchPostQuery & GetPostQuery) => {
   return axiosInstance.get<PostsResponse>(`/posts/search`, { params: query })
 }
 
 // 태그별 게시물 조회
-export const getPostsByTag = (tag: string) => {
-  return axiosInstance.get<PostsResponse>(`/posts/tag/${tag}`)
+export const getPostsByTag = (tag: string, query: GetPostQuery) => {
+  return axiosInstance.get<PostsResponse>(`/posts/tag/${tag}`, {
+    params: query,
+  })
 }

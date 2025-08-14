@@ -8,9 +8,10 @@ import { usePostListFilterSearchParams } from "../model/hooks/use-post-list-filt
  **/
 export const PostPagination = React.memo(function PostPagination() {
   const { postListFilterSearchParams, setPostListFilterSearchParams } = usePostListFilterSearchParams()
+
   const { data: postList } = useGetPosts(postListFilterSearchParams)
 
-  const limit = postListFilterSearchParams.limit ?? 10
+  const limit = postListFilterSearchParams.limit ?? 30
   const skip = postListFilterSearchParams.skip ?? 0
   const total = postList?.total || 0
 
