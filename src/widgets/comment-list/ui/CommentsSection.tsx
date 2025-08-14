@@ -15,23 +15,8 @@ export const CommentsSection = ({ postId }: { postId: number }) => {
 
   const { data: comments } = useGetComments(postId)
 
-  const { postListFilterSearchParams } = usePostListFilterSearchParams()
-  const searchQuery = postListFilterSearchParams.q || ""
-
   const handleAddComment = () => {
     setIsAddCommentDialogOpen(true)
-  }
-
-  const handleLikeComment = (commentId: number) => {
-    console.log("like comment", commentId)
-  }
-
-  const handleEditComment = (comment: Comment) => {
-    console.log("edit comment", comment)
-  }
-
-  const handleDeleteComment = (commentId: number) => {
-    console.log("delete comment", commentId)
   }
 
   return (
@@ -63,10 +48,6 @@ const CommentItem = React.memo(function CommentItem({ comment }: { comment: Comm
 
   const { postListFilterSearchParams } = usePostListFilterSearchParams()
   const searchQuery = postListFilterSearchParams.q || ""
-
-  const handleLikeComment = (commentId: number) => {
-    console.log("like comment", commentId)
-  }
 
   const handleEditComment = () => {
     setIsEditCommentDialogOpen(true)
