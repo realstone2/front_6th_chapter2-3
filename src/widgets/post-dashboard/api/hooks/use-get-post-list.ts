@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { postQueryKeys } from "../../../../entities/post/api/query-keys"
-import { getPosts, getPostsByTag, searchPosts } from "../../../../entities/post/api/services"
+import { postQueryKeys, getPosts, getPostsByTag, searchPosts } from "../../../../entities/post"
 import { GetPostQuery } from "../../../../entities/post/model/types"
 
 export interface PostListResponse {

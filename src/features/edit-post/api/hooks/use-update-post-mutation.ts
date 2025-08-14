@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { postQueryKeys } from "../../../../entities/post/api/query-keys"
+import { postQueryKeys } from "../../../../entities/post"
 import { updatePost, UpdatePostRequest } from "../services"
 import { Post } from "../../../../entities/post"
 

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { CommentsResponse } from "../../../../entities/comment"
-import { commentQueryKeys } from "../../../../entities/comment/api/query-keys"
+import { commentQueryKeys } from "../../../../entities/comment"
 import { likeComment, LikeCommentRequestBody } from "../services"
 
 export const useLikeCommentMutation = () => {

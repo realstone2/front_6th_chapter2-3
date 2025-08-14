@@ -1,7 +1,7 @@
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { Button } from "../../../shared/ui"
 import { Comment } from "../../../entities/comment"
-import { useGetComments } from "../../../entities/comment/api/hooks/use-get-comments"
+import { useGetComments } from "../../../entities/comment"
 import { usePostListFilterSearchParams } from "../../../entities/post/model/hooks/use-post-list-filter-search-params"
 import { highlightText } from "../../../shared/lib/highlight-text"
 import { AddCommentDialog } from "../../../features/add-comment/ui/AddCommentDialog"

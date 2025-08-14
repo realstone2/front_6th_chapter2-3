@@ -1,6 +1,6 @@
 import React from "react"
 import { useForm } from "react-hook-form"
-import { useGetPostDetail } from "../../../entities/post/api/hooks/use-get-post-detail"
+import { useGetPostDetail } from "../../../entities/post"
 import { Post } from "../../../entities/post/model/types"
 import { Button, Dialog, Input, Textarea } from "../../../shared/ui"
 import { useUpdatePostMutation } from "../api/hooks/use-update-post-mutation"

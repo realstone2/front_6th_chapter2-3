@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { postQueryKeys } from "../../../../entities/post/api/query-keys"
+import { postQueryKeys } from "../../../../entities/post"
 import { PostListResponse } from "../../../../widgets/post-dashboard/api/hooks/use-get-post-list"
 import { usePostListFilterSearchParams } from "../../../../entities/post/model/hooks/use-post-list-filter-search-params"
 import { createPost, CreatePostRequest } from "../services"

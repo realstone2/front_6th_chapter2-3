@@ -3,14 +3,15 @@ import { usePostListFilterSearchParams } from "../../../entities/post/model/hook
 
 import { highlightText } from "../../../shared/lib/highlight-text"
 import React, { useState } from "react"
-import { useGetPostDetail } from "../../../entities/post/api/hooks/use-get-post-detail"
+import { useGetPostDetail } from "../../../entities/post"
 import { PostDetailDialog } from "../../../widgets/post-dashboard/ui/PostDetailDialog"
 import { useGetPosts } from "../api/hooks/use-get-post-list"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { deletePost } from "../../../features/delete-post/api/services"
+
 import { EditPostDialog } from "../../../features/edit-post/ui/EditPostDialog"
 import { UserDetailDialog } from "../../../entities/user/ui"
-import { useGetUserDetail } from "../../../entities/user/api/hooks/use-get-user-detail"
+import { useGetUserDetail } from "../../../entities/user"
+import { DeletePostButton } from "../../../features/delete-post/ui/DeletePostButton"
 
 export function PostTable() {
   const { postListFilterSearchParams } = usePostListFilterSearchParams()
@@ -121,9 +122,7 @@ const ProductTableRow = React.memo(function ProductTableRow({ postId }: { postId
             >
               <Edit2 className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => deletePost(post.id ?? 0)}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            <DeletePostButton postId={post.id ?? 0} />
           </div>
         </TableCell>
       </TableRow>
