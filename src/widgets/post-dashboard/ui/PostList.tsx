@@ -1,17 +1,17 @@
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui"
 import { usePostListFilterSearchParams } from "../../../entities/post/model/hooks/use-post-list-filter-search-params"
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui"
 
-import { highlightText } from "../../../shared/lib/highlight-text"
+import { Edit2, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react"
 import React, { useState } from "react"
 import { useGetPostDetail } from "../../../entities/post"
+import { highlightText } from "../../../shared/lib/highlight-text"
 import { PostDetailDialog } from "../../../widgets/post-dashboard/ui/PostDetailDialog"
 import { useGetPosts } from "../api/hooks/use-get-post-list"
-import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 
-import { EditPostDialog } from "../../../features/edit-post/ui/EditPostDialog"
+import { useGetUsers } from "../../../entities/user"
 import { UserDetailDialog } from "../../../entities/user/ui"
-import { useGetUserDetail, useGetUsers } from "../../../entities/user"
 import { DeletePostButton } from "../../../features/delete-post/ui/DeletePostButton"
+import { EditPostDialog } from "../../../features/edit-post/ui/EditPostDialog"
 
 export function PostTable() {
   const { postListFilterSearchParams } = usePostListFilterSearchParams()

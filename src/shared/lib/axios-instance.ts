@@ -1,4 +1,4 @@
-import axios, { AxiosInstance as AxiosInstanceType, AxiosRequestConfig, AxiosResponse } from "axios"
+import axios, { AxiosInstance as AxiosInstanceType, AxiosRequestConfig } from "axios"
 import qs from "qs"
 
 class AxiosInstance {

@@ -1,7 +1,6 @@
-import React from "react"
+import { Trash2 } from "lucide-react"
 import { Button } from "../../../shared/ui"
 import { useDeleteCommentMutation } from "../api/hooks/use-delete-comment-mutation"
-import { Trash2 } from "lucide-react"
 
 interface DeleteCommentButtonProps {
   id: number
