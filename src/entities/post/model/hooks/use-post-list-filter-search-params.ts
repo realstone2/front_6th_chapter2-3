@@ -1,7 +1,7 @@
 import React from "react"
 import { useSearchParams } from "react-router-dom"
-import { postListQuerySchema } from "../post-list-query-schema"
-import { GetPostQuery } from "../.."
+import { postListQuerySchema } from "../../../../entities/post/model/post-list-query-schema"
+import { GetPostQuery } from "../../../../entities/post"
 import { createQueryString, parseQueryString } from "@toss/utils"
 
 /**

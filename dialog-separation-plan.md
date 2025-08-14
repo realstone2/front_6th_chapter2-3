@@ -350,8 +350,8 @@ const SomeForm = React.memo(function SomeForm({ setIsOpen, ...props }) {
 
 ### 8.1 Post 도메인
 
-- [ ] EditPostDialog 컴포넌트 생성
-- [ ] EditPostDialog의 index.ts 파일 생성
+- [x] EditPostDialog 컴포넌트 생성
+- [x] EditPostDialog의 index.ts 파일 생성
 
 ### 8.2 Comment 도메인 (Feature 단위 분리)
 
@@ -368,8 +368,8 @@ const SomeForm = React.memo(function SomeForm({ setIsOpen, ...props }) {
 
 ### 8.3 User 도메인
 
-- [ ] UserDetailDialog 컴포넌트 생성
-- [ ] UserDetailDialog의 index.ts 파일 생성
+- [x] UserDetailDialog 컴포넌트 생성
+- [x] UserDetailDialog의 index.ts 파일 생성
 
 ### 8.4 통합 작업
 
