@@ -12,7 +12,7 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
   children?: React.ReactNode
 }
 
-export const DialogContent = forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, DialogContentProps>(
+const DialogContent = forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, DialogContentProps>(
   ({ className, children, ...props }, ref) => (
     <DialogPortal>
       <DialogOverlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
@@ -37,7 +37,7 @@ interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode
 }
 
-export const DialogHeader = ({ className, children, ...props }: DialogHeaderProps) => (
+const DialogHeader = ({ className, children, ...props }: DialogHeaderProps) => (
   <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className}`} {...props}>
     {children}
   </div>
@@ -48,7 +48,7 @@ interface DialogTitleProps extends React.ComponentPropsWithoutRef<typeof DialogP
   className?: string
 }
 
-export const DialogTitle = forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, DialogTitleProps>(
+const DialogTitle = forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, DialogTitleProps>(
   ({ className, ...props }, ref) => (
     <DialogPrimitive.Title
       ref={ref}

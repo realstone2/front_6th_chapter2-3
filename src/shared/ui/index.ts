@@ -23,4 +23,4 @@ export { Footer } from "./footer"
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem } from "./select"
 
 // Dialog
-export { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog"
+export { Dialog } from "./dialog"

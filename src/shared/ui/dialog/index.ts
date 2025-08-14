@@ -1,1 +1,1 @@
-export { Dialog, DialogContent, DialogHeader, DialogTitle } from "./Dialog"
+export { Dialog } from "./Dialog"
