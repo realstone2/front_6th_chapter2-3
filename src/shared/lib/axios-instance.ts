@@ -5,8 +5,15 @@ class AxiosInstance {
   private instance: AxiosInstanceType
 
   constructor() {
+    // 환경별 baseURL 설정
+    const baseURL =
+      import.meta.env.VITE_API_BASE_URL ||
+      (import.meta.env.DEV
+        ? "/api" // 개발 환경: Vite proxy 사용
+        : "https://dummyjson.com") // 배포 환경: 직접 API 서버 호출
+
     this.instance = axios.create({
-      baseURL: "/api",
+      baseURL,
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
