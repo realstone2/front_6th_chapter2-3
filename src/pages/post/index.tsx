@@ -6,26 +6,16 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
   Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
 } from "../../shared/ui/index"
 
-import { Comment, CommentsResponse } from "../../entities/comment"
-import { Post } from "../../entities/post"
 import { useGetTags } from "../../entities/tag/api"
-import { User } from "../../entities/user"
-import { UserDetailDialog } from "../../entities/user/ui"
-import { useCreatePostMutation } from "../../features/add-post/api/hooks/use-create-post-mutation"
 import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
-import { EditPostDialog } from "../../features/edit-post/ui/EditPostDialog"
-import { useUpdatePostMutation } from "../../features/edit-post/api/hooks/use-update-post-mutation"
-import { useDeletePostMutation } from "../../features/post/api/hooks/use-delete-post-mutation"
 import { useGetPosts } from "../../widgets/post-dashboard/api/hooks/use-get-post-list"
 import { usePostListFilterSearchParams } from "../../widgets/post-dashboard/model/hooks/use-post-list-filter-search-params"
 import { PostTable } from "../../widgets/post-dashboard/ui/PostList"
@@ -45,116 +35,10 @@ const PostsManager = () => {
   const posts = postList?.postIds || []
   const total = postList?.total || 0
 
-  // Mutation hooks
-  const createPostMutation = useCreatePostMutation()
-  const updatePostMutation = useUpdatePostMutation()
-  const deletePostMutation = useDeletePostMutation()
-
   // 상태 관리
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [showAddDialog, setShowAddDialog] = useState<boolean>(false)
-  const [showEditDialog, setShowEditDialog] = useState<boolean>(false)
-  const [newPost, setNewPost] = useState<{ title: string; body: string; userId: number }>({
-    title: "",
-    body: "",
-    userId: 1,
-  })
 
   const { data: tags } = useGetTags()
-  const [comments, setComments] = useState<Record<number, Comment[]>>({})
-
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      await createPostMutation.mutateAsync(newPost)
-      setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
-    } catch (error) {
-      console.error("게시물 추가 오류:", error)
-    }
-  }
-
-  // 게시물 삭제
-  const deletePost = async (id: number) => {
-    try {
-      await deletePostMutation.mutateAsync(id)
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 가져오기
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data: CommentsResponse = await response.json()
-      setComments((prev) => ({ ...prev, [postId]: data.comments }))
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  // 댓글 삭제
-  const deleteComment = async (id: number, postId: number) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].filter((comment) => comment.id !== id),
-      }))
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 좋아요
-  const likeComment = async (id: number, postId: number) => {
-    try {
-      const currentComment = comments[postId].find((c) => c.id === id)
-      if (!currentComment) return
-
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: currentComment.likes + 1 }),
-      })
-      const data: Comment = await response.json()
-      setComments((prev) => ({
-        ...prev,
-        [postId]: prev[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
-        ),
-      }))
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
-  // 사용자 모달 열기
-  const openUserModal = async (user: User) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData: User = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
-  }
-
-  // 댓글 관련 핸들러 함수들
-  const handleAddComment = (postId: number) => {
-    setSelectedPostIdForComment(postId)
-    setShowAddCommentDialog(true)
-  }
-
-  const handleEditComment = (comment: Comment) => {
-    setSelectedComment(comment)
-    setShowEditCommentDialog(true)
-  }
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
