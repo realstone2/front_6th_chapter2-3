@@ -4,10 +4,8 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 // 대화상자 컴포넌트
-export const Dialog = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
-export const DialogPortal = DialogPrimitive.Portal
-export const DialogOverlay = DialogPrimitive.Overlay
+const DialogPortal = DialogPrimitive.Portal
+const DialogOverlay = DialogPrimitive.Overlay
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   className?: string
@@ -60,3 +58,9 @@ export const DialogTitle = forwardRef<React.ElementRef<typeof DialogPrimitive.Ti
   ),
 )
 DialogTitle.displayName = DialogPrimitive.Title.displayName
+
+export const Dialog = Object.assign(DialogPrimitive.Root, {
+  Content: DialogContent,
+  Header: DialogHeader,
+  Title: DialogTitle,
+})
