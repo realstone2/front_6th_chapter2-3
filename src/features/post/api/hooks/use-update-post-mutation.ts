@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { UpdatePostRequest } from "../../../../entities/post/model/types"
+import { UpdatePostRequest, Post } from "../../../../entities/post/model/types"
 import { updatePost } from "../services"
 import { postQueryKeys } from "../../../../entities/post/api/query-keys"
 
@@ -9,8 +9,12 @@ export const useUpdatePostMutation = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdatePostRequest }) => updatePost(id, data),
-    onSuccess: (updatedPost) => {
-      queryClient.invalidateQueries({ queryKey: postQueryKeys.all })
+    onSuccess: (updatedPost: Post) => {
+      // 단건 캐시만 업데이트
+      queryClient.setQueryData(postQueryKeys.detail(updatedPost.id), updatedPost)
+      queryClient.invalidateQueries({
+        queryKey: postQueryKeys.lists(),
+      })
     },
   })
 }

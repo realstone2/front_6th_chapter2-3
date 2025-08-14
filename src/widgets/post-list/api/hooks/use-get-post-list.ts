@@ -1,44 +1,36 @@
-import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { postQueryKeys } from "../../../../entities/post/api/query-keys"
 import { getPosts, getPostsByTag, searchPosts } from "../../../../entities/post/api/services"
 import { GetPostQuery } from "../../../../entities/post/model/types"
-import { useGetUsers } from "../../../../entities/user/api"
 
-// 게시물 목록 조회
+// 게시물 목록 조회 (ID만 반환하고 단건 데이터는 캐시에 저장)
 export const useGetPosts = (query: GetPostQuery) => {
-  const userQuery = useGetUsers({
-    limit: 0,
-    select: ["username", "image"],
-  })
+  const queryClient = useQueryClient()
 
-  const postQuery = useQuery({
+  return useQuery({
     queryKey: postQueryKeys.list(query),
-    queryFn: () => {
+    queryFn: async () => {
+      // 1. 포스트 리스트 조회
+      let postsResponse
+
       if (query.tag) {
-        return getPostsByTag(query.tag)
+        postsResponse = await getPostsByTag(query.tag)
+      } else if (query.q) {
+        postsResponse = await searchPosts(query)
+      } else {
+        postsResponse = await getPosts(query)
       }
-      if (query.q) {
-        return searchPosts(query)
+
+      // 2. 각 포스트를 단건 캐시에 저장
+      postsResponse.posts.forEach((post) => {
+        queryClient.setQueryData(postQueryKeys.detail(post.id), post)
+      })
+
+      // 3. ID만 반환 (실제 데이터는 캐시에 저장됨)
+      return {
+        posts: postsResponse.posts.map((post) => ({ id: post.id })),
+        total: postsResponse.total,
       }
-      return getPosts(query)
     },
   })
-
-  const posts = useMemo(() => {
-    if (postQuery.data) {
-      return postQuery.data.posts.map((post) => ({
-        ...post,
-        author: userQuery.data?.find((user) => user.id === post.userId),
-      }))
-    }
-    return []
-  }, [postQuery.data, userQuery.data])
-
-  return {
-    ...postQuery,
-    posts,
-    isLoading: postQuery.isLoading || userQuery.isLoading,
-    isError: postQuery.isError || userQuery.isError,
-  }
 }
