@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { postQueryKeys } from "../../../../entities/post/api/query-keys"
-import { PostListResponse } from "../../../../widgets/post-list/api/hooks/use-get-post-list"
-import { usePostListFilterSearchParams } from "../../../../widgets/post-list/model/hooks/use-post-list-filter-search-params"
+import { PostListResponse } from "../../../../widgets/post-dashboard/api/hooks/use-get-post-list"
+import { usePostListFilterSearchParams } from "../../../../widgets/post-dashboard/model/hooks/use-post-list-filter-search-params"
 import { createPost, CreatePostRequest } from "../services"
 
 // 게시물 생성 Mutation
