@@ -3,7 +3,7 @@ import { useGetPostDetail } from "../../../entities/post"
 import { highlightText } from "../../../shared/lib/highlight-text"
 import { Dialog } from "../../../shared/ui"
 import { CommentsSection } from "../../comment-list/ui/CommentsSection"
-import { usePostListFilterSearchParams } from "../../post-dashboard/model/hooks/use-post-list-filter-search-params"
+import { usePostListFilterSearchParams } from "../../../entities/post/model/hooks/use-post-list-filter-search-params"
 
 /**
  *PostDetailDialog

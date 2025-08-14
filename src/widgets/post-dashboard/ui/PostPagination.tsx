@@ -1,7 +1,7 @@
 import React from "react"
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui"
 import { useGetPosts } from "../api/hooks/use-get-post-list"
-import { usePostListFilterSearchParams } from "../model/hooks/use-post-list-filter-search-params"
+import { usePostListFilterSearchParams } from "../../../entities/post/model/hooks/use-post-list-filter-search-params"
 
 /**
  * PostPagination

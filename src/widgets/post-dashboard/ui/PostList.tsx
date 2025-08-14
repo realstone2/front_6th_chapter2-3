@@ -1,5 +1,5 @@
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui"
-import { usePostListFilterSearchParams } from "../model/hooks/use-post-list-filter-search-params"
+import { usePostListFilterSearchParams } from "../../../entities/post/model/hooks/use-post-list-filter-search-params"
 
 import { highlightText } from "../../../shared/lib/highlight-text"
 import React, { useState } from "react"
@@ -7,7 +7,7 @@ import { useGetPostDetail } from "../../../entities/post/api/hooks/use-get-post-
 import { PostDetailDialog } from "../../../widgets/post-dashboard/ui/PostDetailDialog"
 import { useGetPosts } from "../api/hooks/use-get-post-list"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import { deletePost } from "../../../features/post/api/services"
+import { deletePost } from "../../../features/delete-post/api/services"
 import { EditPostDialog } from "../../../features/edit-post/ui/EditPostDialog"
 import { UserDetailDialog } from "../../../entities/user/ui"
 import { useGetUserDetail } from "../../../entities/user/api/hooks/use-get-user-detail"

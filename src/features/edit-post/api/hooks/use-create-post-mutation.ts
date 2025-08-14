@@ -11,10 +11,10 @@ export const useCreatePostMutation = () => {
 
   return useMutation({
     mutationFn: (data: CreatePostRequest) => createPost(data),
-    onSuccess: (response) => {
+    onSuccess: (_, data) => {
       const postID = new Date().getTime()
 
-      queryClient.setQueryData(postQueryKeys.detail(postID), response)
+      queryClient.setQueryData(postQueryKeys.detail(postID), data)
 
       queryClient.setQueriesData(
         { queryKey: postQueryKeys.list(postListFilterSearchParams) },
