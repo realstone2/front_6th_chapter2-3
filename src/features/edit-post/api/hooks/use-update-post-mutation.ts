@@ -18,5 +18,8 @@ export const useUpdatePostMutation = () => {
         })
       }
     },
+    onError: (error) => {
+      console.error("게시글 수정 실패", error)
+    },
   })
 }

@@ -27,5 +27,8 @@ export const useDeletePostMutation = () => {
         },
       )
     },
+    onError: (error) => {
+      console.error("게시글 삭제 실패", error)
+    },
   })
 }

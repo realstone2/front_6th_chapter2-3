@@ -24,5 +24,8 @@ export const useUpdateCommentMutation = () => {
         })
       }
     },
+    onError: (error) => {
+      console.error("댓글 수정 실패", error)
+    },
   })
 }

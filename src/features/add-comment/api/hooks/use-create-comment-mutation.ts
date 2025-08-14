@@ -19,5 +19,8 @@ export const useCreateCommentMutation = () => {
         ]),
       })
     },
+    onError: (error) => {
+      console.error("댓글 생성 실패", error)
+    },
   })
 }

@@ -26,5 +26,8 @@ export const useCreatePostMutation = () => {
         },
       )
     },
+    onError: (error) => {
+      console.error("게시글 생성 실패", error)
+    },
   })
 }

@@ -19,5 +19,8 @@ export const useLikeCommentMutation = (postId: number) => {
         })
       }
     },
+    onError: (error) => {
+      console.error("댓글 좋아요 실패", error)
+    },
   })
 }

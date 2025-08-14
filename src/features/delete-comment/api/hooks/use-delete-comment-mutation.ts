@@ -17,5 +17,8 @@ export const useDeleteCommentMutation = () => {
         })
       }
     },
+    onError: (error) => {
+      console.error("댓글 삭제 실패", error)
+    },
   })
 }
