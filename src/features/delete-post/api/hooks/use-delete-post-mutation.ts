@@ -11,7 +11,7 @@ export const useDeletePostMutation = () => {
 
   return useMutation({
     mutationFn: (id: number) => deletePost(id),
-    onMutate: (deletedId) => {
+    onSuccess: (_, deletedId) => {
       // 단건 캐시에서 제거
       queryClient.removeQueries({
         queryKey: postQueryKeys.detail(deletedId),
