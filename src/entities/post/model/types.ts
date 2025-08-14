@@ -14,12 +14,6 @@ export interface SearchPostQuery {
   q?: string
 }
 
-export interface UpdatePostRequest {
-  title?: string
-  body?: string
-  userId?: number
-}
-
 // Response 타입들
 export interface Post {
   id: number

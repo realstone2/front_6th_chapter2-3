@@ -1,3 +1,2 @@
-export { useCreatePostMutation as useCreatePost } from "./api/hooks/use-create-post-mutation"
-export { useUpdatePostMutation as useUpdatePost } from "./api/hooks/use-update-post-mutation"
-export { useDeletePostMutation as useDeletePost } from "./api/hooks/use-delete-post-mutation"
+export { useUpdatePostMutation } from "../edit-post/api/hooks/use-update-post-mutation"
+export { useDeletePostMutation } from "./api/hooks/use-delete-post-mutation"
