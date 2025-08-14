@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useState } from "react"
 import { Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui"
 import { Search } from "lucide-react"
 import { useGetTags } from "../../../entities/tag"
 import { usePostListFilterSearchParams } from "../../../entities/post/model/hooks/use-post-list-filter-search-params"
+import { useDebouncedCallback } from "../../../shared/lib/use-debounce"
 
 /**
  * PostFilter
@@ -11,7 +12,12 @@ export const PostFilter = React.memo(function PostFilter() {
   const { postListFilterSearchParams, setPostListFilterSearchParams } = usePostListFilterSearchParams()
   const { data: tags } = useGetTags()
 
-  const searchQuery = postListFilterSearchParams.q ?? ""
+  const [searchQuery, setSearchQuery] = useState(postListFilterSearchParams.q ?? "")
+
+  const debouncedSetSearchQuery = useDebouncedCallback((value: string) => {
+    setPostListFilterSearchParams({ q: value })
+  }, 500)
+
   const sortBy = postListFilterSearchParams.sortBy ?? "none"
   const sortOrder = postListFilterSearchParams.order ?? "asc"
   const selectedTag = postListFilterSearchParams.tag ?? ""
@@ -25,8 +31,10 @@ export const PostFilter = React.memo(function PostFilter() {
             placeholder="게시물 검색..."
             className="pl-8"
             value={searchQuery}
-            onChange={(e) => setPostListFilterSearchParams({ q: e.target.value })}
-            //TODO: 검색 debounce 및 내부 state 추가
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              debouncedSetSearchQuery(e.target.value)
+            }}
           />
         </div>
       </div>
