@@ -14,7 +14,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/front_6th_chapter2-3/api": {
+      "/api": {
         // target: 'https://jsonplaceholder.typicode.com',
         target: "https://dummyjson.com",
         changeOrigin: true,
