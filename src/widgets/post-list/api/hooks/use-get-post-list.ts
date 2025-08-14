@@ -3,6 +3,11 @@ import { postQueryKeys } from "../../../../entities/post/api/query-keys"
 import { getPosts, getPostsByTag, searchPosts } from "../../../../entities/post/api/services"
 import { GetPostQuery } from "../../../../entities/post/model/types"
 
+export interface PostListResponse {
+  postIds: number[]
+  total: number
+}
+
 // 게시물 목록 조회 (ID만 반환하고 단건 데이터는 캐시에 저장)
 export const useGetPosts = (query: GetPostQuery) => {
   const queryClient = useQueryClient()
@@ -10,7 +15,6 @@ export const useGetPosts = (query: GetPostQuery) => {
   return useQuery({
     queryKey: postQueryKeys.list(query),
     queryFn: async () => {
-      // 1. 포스트 리스트 조회
       let postsResponse
 
       if (query.tag) {
@@ -21,14 +25,12 @@ export const useGetPosts = (query: GetPostQuery) => {
         postsResponse = await getPosts(query)
       }
 
-      // 2. 각 포스트를 단건 캐시에 저장
       postsResponse.posts.forEach((post) => {
         queryClient.setQueryData(postQueryKeys.detail(post.id), post)
       })
 
-      // 3. ID만 반환 (실제 데이터는 캐시에 저장됨)
       return {
-        posts: postsResponse.posts.map((post) => ({ id: post.id })),
+        postIds: postsResponse.posts.map((post) => post.id),
         total: postsResponse.total,
       }
     },

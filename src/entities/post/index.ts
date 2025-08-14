@@ -1,12 +1,5 @@
 // Types
-export type {
-  Post,
-  PostsResponse,
-  GetPostQuery,
-  SearchPostQuery,
-  CreatePostRequest,
-  UpdatePostRequest,
-} from "./model/types"
+export type { Post, PostsResponse, GetPostQuery, SearchPostQuery, UpdatePostRequest } from "./model/types"
 
 // API (Services, Queries, Mutations)
 export {
@@ -17,4 +10,7 @@ export {
 
   // Query Keys
   postQueryKeys,
+
+  // Hooks
+  useGetPostDetail,
 } from "./api"
