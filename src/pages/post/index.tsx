@@ -20,8 +20,10 @@ import { Comment, CommentsResponse } from "../../entities/comment"
 import { Post } from "../../entities/post"
 import { useGetTags } from "../../entities/tag/api"
 import { User } from "../../entities/user"
+import { UserDetailDialog } from "../../entities/user/ui"
 import { useCreatePostMutation } from "../../features/add-post/api/hooks/use-create-post-mutation"
 import { AddPostDialog } from "../../features/add-post/ui/AddPostDialog"
+import { EditPostDialog } from "../../features/edit-post/ui/EditPostDialog"
 import { useUpdatePostMutation } from "../../features/edit-post/api/hooks/use-update-post-mutation"
 import { useDeletePostMutation } from "../../features/post/api/hooks/use-delete-post-mutation"
 import { useGetPosts } from "../../widgets/post-dashboard/api/hooks/use-get-post-list"
@@ -60,13 +62,6 @@ const PostsManager = () => {
 
   const { data: tags } = useGetTags()
   const [comments, setComments] = useState<Record<number, Comment[]>>({})
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState<boolean>(false)
-  const [selectedPostIdForComment, setSelectedPostIdForComment] = useState<number | null>(null)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState<boolean>(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState<boolean>(false)
-  const [showUserModal, setShowUserModal] = useState<boolean>(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   // 게시물 추가
   const addPost = async () => {
@@ -76,20 +71,6 @@ const PostsManager = () => {
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
       console.error("게시물 추가 오류:", error)
-    }
-  }
-
-  // 게시물 업데이트
-  const updatePost = async () => {
-    if (!selectedPost) return
-    try {
-      await updatePostMutation.mutateAsync({
-        id: selectedPost.id,
-        data: { title: selectedPost.title, body: selectedPost.body },
-      })
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
     }
   }
 
@@ -292,63 +273,6 @@ const PostsManager = () => {
       </CardContent>
 
       <AddPostDialog isOpen={showAddDialog} setIsOpen={setShowAddDialog} />
-
-      {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>게시물 수정</Dialog.Title>
-          </Dialog.Header>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => selectedPost && setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </Dialog.Content>
-      </Dialog>
-
-      {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <Dialog.Content>
-          <Dialog.Header>
-            <Dialog.Title>사용자 정보</Dialog.Title>
-          </Dialog.Header>
-          <div className="space-y-4">
-            <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-            <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-            <div className="space-y-2">
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-                {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-              </p>
-            </div>
-          </div>
-        </Dialog.Content>
-      </Dialog>
     </Card>
   )
 }

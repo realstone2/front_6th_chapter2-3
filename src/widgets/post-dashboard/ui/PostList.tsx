@@ -9,6 +9,8 @@ import { useGetPosts } from "../api/hooks/use-get-post-list"
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { deletePost } from "../../../features/post/api/services"
 import { EditPostDialog } from "../../../features/edit-post/ui/EditPostDialog"
+import { UserDetailDialog } from "../../../entities/user/ui"
+import { useGetUserDetail } from "../../../entities/user/api/hooks/use-get-user-detail"
 
 export function PostTable() {
   const { postListFilterSearchParams } = usePostListFilterSearchParams()
@@ -43,18 +45,23 @@ export function PostTable() {
  *ProductTableRow
  **/
 const ProductTableRow = React.memo(function ProductTableRow({ postId }: { postId: number }) {
-  const { data: post } = useGetPostDetail(postId)
+  const { data: postDetail } = useGetPostDetail(postId)
+
+  const { data: user } = useGetUserDetail(postDetail?.userId ?? 0)
+
+  const post = React.useMemo(() => {
+    return {
+      ...postDetail,
+      author: user,
+    }
+  }, [postDetail, user])
 
   const { postListFilterSearchParams, setPostListFilterSearchParams } = usePostListFilterSearchParams()
 
   const [showPostDetailDialog, setShowPostDetailDialog] = useState<boolean>(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState<boolean>(false)
+  const [showUserModal, setShowUserModal] = useState<boolean>(false)
 
-  const limit = postListFilterSearchParams.limit ?? 10
-  const skip = postListFilterSearchParams.skip ?? 0
-  const searchQuery = postListFilterSearchParams.q ?? ""
-  const sortBy = postListFilterSearchParams.sortBy ?? "none"
-  const sortOrder = postListFilterSearchParams.order ?? "asc"
   const selectedTag = postListFilterSearchParams.tag ?? ""
 
   if (!post) return null
@@ -87,7 +94,7 @@ const ProductTableRow = React.memo(function ProductTableRow({ postId }: { postId
           </div>
         </TableCell>
         <TableCell>
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author!)}>
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setShowUserModal(true)}>
             <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
             <span>{post.author?.username}</span>
           </div>
@@ -114,7 +121,7 @@ const ProductTableRow = React.memo(function ProductTableRow({ postId }: { postId
             >
               <Edit2 className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
+            <Button variant="ghost" size="sm" onClick={() => deletePost(post.id ?? 0)}>
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
@@ -122,6 +129,7 @@ const ProductTableRow = React.memo(function ProductTableRow({ postId }: { postId
       </TableRow>
       <PostDetailDialog isOpen={showPostDetailDialog} setIsOpen={setShowPostDetailDialog} postId={postId} />
       <EditPostDialog isOpen={showEditCommentDialog} setIsOpen={setShowEditCommentDialog} postId={postId} />
+      <UserDetailDialog isOpen={showUserModal} setIsOpen={setShowUserModal} user={post.author ?? null} />
     </>
   )
 })
