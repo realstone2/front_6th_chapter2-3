@@ -12,7 +12,7 @@ export const useCreatePostMutation = () => {
   return useMutation({
     mutationFn: (data: CreatePostRequest) => createPost(data),
     onSuccess: (response) => {
-      const postID = new Date().getTime()
+      const postID = response.id
 
       queryClient.setQueryData(postQueryKeys.detail(postID), response)
 
